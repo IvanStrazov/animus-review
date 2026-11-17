@@ -176,7 +176,23 @@ def cmd_sizes(a):
 
 def slug(s):
     s = re.sub(r"[^\w\s-]", "", s.lower(), flags=re.U).strip()
-    return re.sub(r"[\s_-]+", "-", s)[:40] or "review"
+    s = re.sub(r"[\s_-]+", "-", s)
+    if len(s) > 40:  # cut at a word boundary, not mid-word
+        s = s[:41].rsplit("-", 1)[0] if "-" in s[:41] else s[:40]
+    return s.strip("-") or "review"
+
+
+def find_row(rows, rid):
+    """Exact id, else a unique prefix of one (e.g. the date-time part)."""
+    exact = [r for r in rows if r[0] == rid]
+    if exact:
+        return exact[0]
+    pre = [r for r in rows if r[0].startswith(rid)]
+    if len(pre) == 1:
+        return pre[0]
+    if pre:
+        sys.exit(f"[review] '{rid}' matches {len(pre)} reviews: " + ", ".join(r[0] for r in pre))
+    sys.exit(f"[review] no review {rid}; known: " + (", ".join(r[0] for r in rows[-5:]) or "none"))
 
 
 def cmd_save(a):
@@ -198,22 +214,35 @@ def cmd_save(a):
 
 
 def cmd_in(a):
-    src = Path(a.file)
-    if not src.is_file():
-        sys.exit(f"[review] not a file: {src}")
+    pasted = None
+    if a.file == "-":  # the answer was pasted into the chat: read it from stdin
+        pasted = sys.stdin.read().strip()
+        if not pasted:
+            sys.exit("refused: empty answer on stdin")
+    else:
+        src = Path(a.file)
+        if not src.is_file():
+            near = sorted(p.name for p in Path.cwd().glob("*.md"))[:8]
+            sys.exit(f"[review] not a file: {src.resolve()}" + (f"; .md files here: {', '.join(near)}" if near else "")
+                     + ". If the answer is in the chat, pipe it: `in -`")
     d = ensure(review_dir())
     rows = read_index(d)
     if a.id:
-        row = next((r for r in rows if r[0] == a.id), None)
-        if not row:
-            sys.exit(f"[review] no review {a.id}")
-    else:
-        row = next((r for r in reversed(rows) if r[1] == "open"), None)
+        row = find_row(rows, a.id)
+    else:  # newest open request; a later round may answer an already answered one
+        row = next((r for r in reversed(rows) if r[1] == "open"), None) or \
+            next((r for r in reversed(rows) if r[1] == "answered"), None)
         if not row:
             sys.exit("[review] no open request; pass --id")
     rid = row[0]
     dest = d / f"{rid}.response.md"
-    if src.resolve() != dest.resolve():
+    if pasted is not None:
+        if dest.is_file():  # keep earlier rounds
+            dest.rename(d / f"{rid}.response.{dt.datetime.now():%H%M%S}.md")
+        dest.write_text(pasted + "\n", encoding="utf-8")
+    elif src.resolve() != dest.resolve():
+        if dest.is_file():
+            dest.rename(d / f"{rid}.response.{dt.datetime.now():%H%M%S}.md")
         shutil.copyfile(src, dest)
     set_status(d, rid, "answered")
     req = (d / f"{rid}.request.md").read_text(encoding="utf-8", errors="replace")
@@ -228,13 +257,12 @@ def cmd_in(a):
 
 def cmd_close(a):
     d = review_dir()
-    if not any(r[0] == a.id for r in read_index(d)):
-        sys.exit(f"[review] no review {a.id}")
-    set_status(d, a.id, "closed")
+    rid = find_row(read_index(d), a.id)[0]
+    set_status(d, rid, "closed")
     if a.note:
-        with open(d / f"{a.id}.request.md", "a", encoding="utf-8") as f:
+        with open(d / f"{rid}.request.md", "a", encoding="utf-8") as f:
             f.write(f"\n---\nClosed {dt.date.today()}: {a.note}\n")
-    print(f"[review] {a.id} closed")
+    print(f"[review] {rid} closed")
 
 
 def cmd_list(_):

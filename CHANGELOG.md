@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0 — 2026-11-17
+- `in -` takes an answer pasted into the chat from stdin; a second round for an answered request works and keeps the earlier answer.
+- `in`/`close --id` accept a unique id prefix; unknown ids list the known ones; a missing answer file shows its full path and nearby .md files.
+- Review ids are cut at a word boundary. Skill: Windows interpreter from ecosystem.json.
+
 ## 0.1.1 — 2026-11-17
 - Skill: never cat/edit request or answer files — `in` prints both; to change a request, save a new one and close the old.
 - `sizes` says the token total is files to read, separate from the reviewer's reasoning budget.

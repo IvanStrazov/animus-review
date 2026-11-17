@@ -61,6 +61,19 @@ class ReviewTest(unittest.TestCase):
         self.assertIn("missing", s)
         self.assertIn("total ~60 tokens", s)
 
+    def test_pasted_answer_rounds_and_prefix_close(self):
+        out = self.run_v("save", "--title", "A very long title about the save system architecture for a roguelite",
+                         stdin="Questions:\n1. ok?").stdout
+        rid = out.split()[2].rstrip(":")
+        self.assertFalse(rid.endswith("-roguel"), rid)       # cut at a word boundary
+        self.assertIn("F1 pasted", self.run_v("in", "-", stdin="F1 pasted finding").stdout)
+        self.assertIn("F2 second round", self.run_v("in", "-", stdin="F2 second round").stdout)  # answered -> again
+        d = self.proj / ".journal" / "review"
+        self.assertEqual(len(list(d.glob(f"{rid}.response*.md"))), 2)  # the first round is kept
+        self.assertIn("not a file", self.run_v("in", "nope.md", ok=False).stderr)
+        self.run_v("close", rid[:15], "--note", "done")      # unique prefix (date-time) is enough
+        self.assertIn("closed", self.run_v("list").stdout)
+
     def test_limits(self):
         self.assertNotEqual(self.run_v("save", "--title", "x", stdin="\n".join(["l"] * 300), ok=False).returncode, 0)
         self.assertNotEqual(self.run_v("close", "nope", ok=False).returncode, 0)
