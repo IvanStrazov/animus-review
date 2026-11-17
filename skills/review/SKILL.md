@@ -6,6 +6,7 @@ description: Send work to another model for an independent review (methodology, 
 # Review
 
 `V` = `python3 "<plugin root>/scripts/review.py"`, where the plugin root is two levels above this skill's base directory (`python` on Windows if `python3` is missing).
+Requests and answers go through the script only: never cat/Read/edit the files under `.journal/review/` or the answer file yourself — `V in` prints both. To change a saved request, `V save` a new one and `V close` the old one with a note.
 
 ## 1. Build the package
 1. Agree with the user, briefly, on what to review and what kind of reviewer (if not obvious).

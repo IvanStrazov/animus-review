@@ -171,7 +171,7 @@ def cmd_sizes(a):
         tok = est_tokens(t)
         total += tok
         print(f"{len(t.splitlines()):>6} lines  ~{tok:>7} tokens  {name}")
-    print(f"total ~{total} tokens for the reviewer to read")
+    print(f"total ~{total} tokens of files for the reviewer to read (input only; its reasoning budget is separate)")
 
 
 def slug(s):

@@ -1,6 +1,6 @@
 {
   "name": "animus-review",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Send work to another model for an independent review and bring the answer back: a focused review package with numbered questions and a strict answer format, then triage of findings into accept / reject / discuss, recorded in the journal.",
   "author": {
     "name": "Ivan Strazov",
