@@ -221,13 +221,16 @@ def cmd_save(a):
         sys.exit("refused: empty request")
     if n > MAX_REQUEST:
         sys.exit(f"refused: {n} lines > {MAX_REQUEST}. Point to files instead of pasting them.")
-    if not a.force and not re.search(r"(?im)^\s*answer format", text):
+    if not a.force and not re.search(r"(?im)^[\s#*>-]*answer format", text):
         sys.exit("refused: no 'Answer format' section - the request looks cut off (an unterminated heredoc?). "
                  "Write the body to a file and run `save --title T < file`, or pass --force.")
     if not text.startswith("# "):
         text = f"# {a.title}\n\n{text}"
     d = ensure(review_dir())
     rid = f"{dt.datetime.now():%Y-%m-%d-%H%M}-{slug(a.title)}"
+    base, k = rid, 2
+    while (d / f"{rid}.request.md").exists():  # same title in the same minute: never overwrite
+        rid, k = f"{base}-{k}", k + 1
     f = d / f"{rid}.request.md"
     f.write_text(text + "\n", encoding="utf-8")
     rows = read_index(d) + [[rid, "open", " ".join(a.title.split())]]

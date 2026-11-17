@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 — 2026-11-17
+- Fix: `save` refused a request whose section was written as a heading (`## Answer format`, `**Answer format:**`).
+- Two requests with the same title in the same minute get distinct ids instead of overwriting each other.
+
 ## 0.3.1 — 2026-11-17
 - Skill: always run `in` on the answer before triage; don't put the command into a shell variable. Same inside-a-journal rule as animus-journal.
 
