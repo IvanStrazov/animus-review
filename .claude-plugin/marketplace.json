@@ -1,0 +1,15 @@
+{
+  "name": "animus-review",
+  "owner": {
+    "name": "Ivan Strazov",
+    "url": "https://github.com/IvanStrazov"
+  },
+  "plugins": [
+    {
+      "name": "animus-review",
+      "source": "./",
+      "description": "Send work to another model for review, then triage the answer.",
+      "version": "0.1.0"
+    }
+  ]
+}
