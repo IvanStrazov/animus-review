@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1 — 2026-11-17
+- Skill: always run `in` on the answer before triage; don't put the command into a shell variable. Same inside-a-journal rule as animus-journal.
+
 ## 0.3.0 — 2026-11-17
 - New `drop <id>`: removes a broken or mistaken request and its answers.
 - `save` refuses a body without an `Answer format` section (a cut-off heredoc); `--force` overrides.

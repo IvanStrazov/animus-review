@@ -52,8 +52,27 @@ def run(args, cwd):
         return ""
 
 
+def _inside_journal(cwd):
+    """A folder inside a journal (~/journal/... or <project>/.journal/...) belongs to that journal,
+    so running a command from there never creates a nested .journal."""
+    try:
+        p = Path(cwd).resolve()
+        g = JOURNAL_GLOBAL.resolve()
+    except (OSError, RuntimeError):
+        return None
+    if p == g or g in p.parents:
+        return JOURNAL_GLOBAL
+    for q in (p, *p.parents):
+        if q.name == ".journal":
+            return q
+    return None
+
+
 def journal_dir(cwd):
     """Same rule as animus-journal: git root/.journal, or the global dir for projectless sessions."""
+    _j = _inside_journal(cwd)
+    if _j is not None:
+        return _j
     p = Path(cwd)
     s = str(p).replace("\\", "/").lower()
     if "scratch-workspaces" in s or not p.exists():

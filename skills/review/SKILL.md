@@ -6,7 +6,7 @@ description: Send work to another model for an independent review (methodology, 
 # Review
 
 `V` = `python3 "<plugin root>/scripts/review.py"`, where the plugin root is two levels above this skill's base directory (`python` if `python3` is missing). On Windows, `python3`/`python` may be Microsoft Store stubs: then use the interpreter and script path from this plugin's `cmd` in `~/.claude/ecosystem.json` (or a start-of-session line), and write paths with forward slashes so a trailing `\` does not eat the closing quote.
-Requests and answers go through the script only: never cat/Read/edit the files under `.journal/review/` or the answer file yourself — `V in` prints both. To change a saved request, `V save` a new one and `V close` the old one with a note.
+Requests and answers go through the script only: never cat/Read/edit the files under `.journal/review/` or the answer file yourself — `V in` prints both. To change a saved request, `V save` a new one and `V close` the old one with a note. Paste the command as is in front of the subcommand; don't put it into a shell variable (the two quoted parts break). Before triage, always run `V in` on the answer, even if you already saw the file.
 
 ## 1. Build the package
 1. Agree with the user, briefly, on what to review and what kind of reviewer (if not obvious).
