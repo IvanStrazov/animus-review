@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.3 — 2026-11-17
+- Skill: Russian trigger phrases; told apart from /code-review (a review by another model, not of the current diff).
+
 ## 0.3.2 — 2026-11-17
 - Fix: `save` refused a request whose section was written as a heading (`## Answer format`, `**Answer format:**`).
 - Two requests with the same title in the same minute get distinct ids instead of overwriting each other.

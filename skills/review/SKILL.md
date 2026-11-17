@@ -1,6 +1,6 @@
 ---
 name: review
-description: Send work to another model for an independent review (methodology, architecture, code, a plan) and bring the answer back — build a focused review package, then triage the reviewer's findings into accepted / rejected / to discuss, and record the outcome. Use on /review, "prepare this for review by another model", "give this to Fable/GPT/Gemini to check", "the review results are in file X".
+description: Send work to a different model (Fable, GPT, Gemini, DeepSeek…) for an independent second-opinion review of methodology, architecture, code or a plan, and bring the answer back — build a focused review package, then triage the reviewer's findings into accepted / rejected / to discuss, and record the outcome. Not for an ordinary review of the current diff by Claude itself (that is /code-review). Use on /review, "prepare this for review by another model", "give this to Fable/GPT/Gemini to check", "the review results are in file X", or in Russian — «отдай на ревью другой модели», «дай Фейблу проверить», «собери пакет на ревью», «ревью пришло, разбери».
 ---
 
 # Review
