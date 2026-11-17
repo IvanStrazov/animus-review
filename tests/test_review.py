@@ -30,7 +30,8 @@ class ReviewTest(unittest.TestCase):
         return r
 
     def test_full_cycle(self):
-        out = self.run_v("save", "--title", "ML methodology", stdin="Questions:\n1. Is the IC real?").stdout
+        out = self.run_v("save", "--title", "ML methodology",
+                         stdin="Questions:\n1. Is the IC real?\nAnswer format: markdown").stdout
         rid = out.split("request ")[1].split(":")[0]
         d = self.proj / ".journal" / "review"
         self.assertTrue((d / f"{rid}.request.md").read_text(encoding="utf-8").startswith("# ML methodology"))
@@ -63,8 +64,13 @@ class ReviewTest(unittest.TestCase):
 
     def test_pasted_answer_rounds_and_prefix_close(self):
         out = self.run_v("save", "--title", "A very long title about the save system architecture for a roguelite",
-                         stdin="Questions:\n1. ok?").stdout
+                         stdin="Questions:\n1. ok?\nAnswer format: md").stdout
         rid = out.split()[2].rstrip(":")
+        cut = self.run_v("save", "--title", "Cut", stdin="Questions:\n1. half a sente", ok=False)
+        self.assertIn("looks cut off", cut.stderr)                # an unterminated heredoc is refused
+        self.run_v("save", "--title", "Mistake", "--force", stdin="oops")
+        self.assertIn("dropped", self.run_v("drop", self.run_v("list").stdout.split()[-3]).stdout)
+        self.assertNotIn("Mistake", self.run_v("list").stdout)
         self.assertFalse(rid.endswith("-roguel"), rid)       # cut at a word boundary
         self.assertIn("F1 pasted", self.run_v("in", "-", stdin="F1 pasted finding").stdout)
         self.assertIn("F2 second round", self.run_v("in", "-", stdin="F2 second round").stdout)  # answered -> again

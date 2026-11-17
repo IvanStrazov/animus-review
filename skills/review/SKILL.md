@@ -11,7 +11,7 @@ Requests and answers go through the script only: never cat/Read/edit the files u
 ## 1. Build the package
 1. Agree with the user, briefly, on what to review and what kind of reviewer (if not obvious).
 2. `V gather --topic <words>` for facts; `V sizes <files…>` for the files the reviewer should read. Keep the reading list to what answers the questions; mention the total ~tokens.
-3. Save the request in one call:
+3. Save the request in one call (for a long request, write the body to a file first and run `V save --title "…" < file`; `save` refuses a body without the `Answer format` section, the usual sign of a cut-off heredoc). A broken or mistaken request is removed with `V drop <id>`, never with rm:
 ```bash
 V save --title "What is reviewed" <<'EOF'
 # What is reviewed

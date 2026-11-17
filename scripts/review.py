@@ -202,6 +202,9 @@ def cmd_save(a):
         sys.exit("refused: empty request")
     if n > MAX_REQUEST:
         sys.exit(f"refused: {n} lines > {MAX_REQUEST}. Point to files instead of pasting them.")
+    if not a.force and not re.search(r"(?im)^\s*answer format", text):
+        sys.exit("refused: no 'Answer format' section - the request looks cut off (an unterminated heredoc?). "
+                 "Write the body to a file and run `save --title T < file`, or pass --force.")
     if not text.startswith("# "):
         text = f"# {a.title}\n\n{text}"
     d = ensure(review_dir())
@@ -245,7 +248,8 @@ def cmd_in(a):
             dest.rename(d / f"{rid}.response.{dt.datetime.now():%H%M%S}.md")
         shutil.copyfile(src, dest)
     set_status(d, rid, "answered")
-    req = (d / f"{rid}.request.md").read_text(encoding="utf-8", errors="replace")
+    rf = d / f"{rid}.request.md"
+    req = rf.read_text(encoding="utf-8", errors="replace") if rf.is_file() else "(request file is missing)"
     resp = dest.read_text(encoding="utf-8", errors="replace")
     print(f"=== request {rid} ===")
     print(req[:MAX_PRINT // 4] + ("\n(request truncated)" if len(req) > MAX_PRINT // 4 else ""))
@@ -263,6 +267,17 @@ def cmd_close(a):
         with open(d / f"{rid}.request.md", "a", encoding="utf-8") as f:
             f.write(f"\n---\nClosed {dt.date.today()}: {a.note}\n")
     print(f"[review] {rid} closed")
+
+
+def cmd_drop(a):
+    """Remove a broken or mistaken request (and its answers) from the index and disk."""
+    d = review_dir()
+    rows = read_index(d)
+    rid = find_row(rows, a.id)[0]
+    for f in d.glob(f"{rid}.*"):
+        f.unlink()
+    write_index(d, [r for r in rows if r[0] != rid])
+    print(f"[review] {rid} dropped")
 
 
 def cmd_list(_):
@@ -288,7 +303,11 @@ def main(argv=None):
     p.set_defaults(fn=cmd_sizes)
     p = sub.add_parser("save")
     p.add_argument("--title", required=True)
+    p.add_argument("--force", action="store_true", help="save even without an 'Answer format' section")
     p.set_defaults(fn=cmd_save)
+    p = sub.add_parser("drop", help="delete a broken or mistaken request and its answers")
+    p.add_argument("id")
+    p.set_defaults(fn=cmd_drop)
     p = sub.add_parser("in")
     p.add_argument("file")
     p.add_argument("--id")

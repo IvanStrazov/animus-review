@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 — 2026-11-17
+- New `drop <id>`: removes a broken or mistaken request and its answers.
+- `save` refuses a body without an `Answer format` section (a cut-off heredoc); `--force` overrides.
+- `in` no longer crashes when a request file is missing. Skill: long requests go through a file.
+
 ## 0.2.0 — 2026-11-17
 - `in -` takes an answer pasted into the chat from stdin; a second round for an answered request works and keeps the earlier answer.
 - `in`/`close --id` accept a unique id prefix; unknown ids list the known ones; a missing answer file shows its full path and nearby .md files.
